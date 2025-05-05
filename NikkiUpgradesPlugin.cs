@@ -95,6 +95,7 @@ namespace NikkiUpgrades
             {
                 Item unstablecoreitem = assetBundle.LoadAsset<Item>("Item Upgrade Player Unstable Core");
                 unstableexplosion = assetBundle.LoadAsset<GameObject>("Unstable Explosion");
+                NetworkPrefabs.RegisterNetworkPrefab("UnstableExplosion", unstableexplosion);
                 Items.RegisterItem(unstablecoreitem);
                 // NetworkPrefabs.RegisterNetworkPrefab("unstableexplosion", unstableexplosion);
                 unstableCoreRegister = Upgrades.RegisterUpgrade("UnstableCore", unstablecoreitem, InitUnstableUpgrade, UseUnstableUpgrade);
@@ -205,26 +206,32 @@ namespace NikkiUpgrades
             }
         }
 
-        private static void InitUnstableUpgrade(PlayerAvatar player, int level)
+        private static void InitUnstableUpgrade(PlayerAvatar playerInit, int level)
         {
-            if (level > 0)
+            foreach (PlayerAvatar player in SemiFunc.PlayerGetAll())
             {
-                if (!player.gameObject.GetComponent<UnstableCoreManager>())
+                if (Upgrades.GetUpgrade("UnstableCore").GetLevel(player) > 0)
                 {
-                    player.gameObject.AddComponent<UnstableCoreManager>();
-                    mls.LogDebug($"{player.playerName} is unstable!");
-                }               
+                    if (!player.gameObject.GetComponent<UnstableCoreManager>())
+                    {
+                        player.gameObject.AddComponent<UnstableCoreManager>();
+                        mls.LogDebug($"{player.playerName} is unstable!");
+                    }
+                }
             }
         }
 
-        private static void UseUnstableUpgrade(PlayerAvatar player, int level)
+        private static void UseUnstableUpgrade(PlayerAvatar playerUse, int level)
         {
-            if (level > 0)
+            foreach (PlayerAvatar player in SemiFunc.PlayerGetAll())
             {
-                if (!player.gameObject.GetComponent<UnstableCoreManager>())
+                if (Upgrades.GetUpgrade("UnstableCore").GetLevel(player) > 0)
                 {
-                    player.gameObject.AddComponent<UnstableCoreManager>();
-                    mls.LogDebug($"{player.playerName} is unstable!");
+                    if (!player.gameObject.GetComponent<UnstableCoreManager>())
+                    {
+                        player.gameObject.AddComponent<UnstableCoreManager>();
+                        mls.LogDebug($"{player.playerName} is unstable!");
+                    }
                 }
             }
         }

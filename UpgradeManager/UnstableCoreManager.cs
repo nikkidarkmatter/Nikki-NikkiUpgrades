@@ -17,6 +17,8 @@ namespace NikkiUpgrades.UpgradeManager
 
         private GameObject explosion;
 
+        private UnstableCoreExplosion explosionScript;
+
         private PhotonView photon;
 
         private void Start()
@@ -60,7 +62,7 @@ namespace NikkiUpgrades.UpgradeManager
             }
             if (player.deadSet && !explosionTriggered)
             {
-                Explode();
+                ExplodeImpulse();
             }
             if (Upgrades.GetUpgrade("UnstableCore").GetLevel(player) == 0)
             {
@@ -93,15 +95,18 @@ namespace NikkiUpgrades.UpgradeManager
         {
             if (!explosionTriggered)
             {
-                Instantiate(explosion, this.transform);
+                if (SemiFunc.IsMasterClientOrSingleplayer())
+                {
+                    explosion = NetworkPrefabs.SpawnNetworkPrefab("UnstableExplosion", this.transform.position, this.transform.rotation);
+                }
+                explosionScript = explosion.GetComponent<UnstableCoreExplosion>();
+                explosionScript.player = this.player;
                 explosionTriggered = true;
             }
         }
 
         public void ExplodeResetImpulse()
         {
-            if (SemiFunc.IsMasterClientOrSingleplayer())
-            {
                 if (SemiFunc.IsMultiplayer())
                 {
                     photon.RPC("ExplodeResetRPC", RpcTarget.All);
@@ -110,7 +115,6 @@ namespace NikkiUpgrades.UpgradeManager
                 {
                     explosionTriggered = false;
                 }
-            }
         }
 
         [PunRPC]
@@ -129,7 +133,7 @@ namespace NikkiUpgrades.UpgradeManager
         }
     }
     public class UnstableCoreExplosion : MonoBehaviour
-        {
+    {   
         public ParticleSystem particleExplosion;
 
         public HurtCollider hurtCollider;
@@ -138,47 +142,49 @@ namespace NikkiUpgrades.UpgradeManager
 
         public Sound explosionSoundGlobal;
 
-        private UnstableCoreManager manager;
+        public PlayerAvatar player;
 
-        private PlayerAvatar player;
+        private PhotonView photonView;
 
         private float explosionTime = 7.5f;
 
         private void Start()
         {
-                explosionTime = 7.5f;
-                manager = GetComponentInParent<UnstableCoreManager>();
-                player = manager.player;
-                mls.LogDebug("Spawning explosion!");
-                var level = Upgrades.GetUpgrade("UnstableCore").GetLevel(player);
-                mls.LogDebug(level);
-                var explosionDamage = unstableUpgradeDamage.Value * level;
-                this.gameObject.transform.localScale = (Vector3.one * (unstableUpgradeRadius.Value * 2) * level);
-                this.gameObject.transform.parent = null;
-                mls.LogDebug($"Explosion with diameter {this.gameObject.transform.localScale} and {explosionDamage} damage spawned at {this.gameObject.transform.position}!");
-                ParticleSystem.MainModule explosion = particleExplosion.main;
-                hurtCollider.playerDamage = (int)Mathf.Round(explosionDamage * 0.4f);
-                hurtCollider.enemyDamage = (int)explosionDamage;
-                explosion.startSpeedMultiplier = 0.5f + (0.5f * level);
-                explosion.m_ParticleSystem.Play();
-                explosionSound.Play(this.gameObject.transform.position, 2, 0.2f, 2, 0.4f);
-                explosionSoundGlobal.Play(this.gameObject.transform.position, 2, 0.2f, 2, 0.4f);
-                SemiFunc.CameraShakeDistance(this.gameObject.transform.position, level * 10f, 1f + (level * 0.5f), unstableUpgradeRadius.Value * 2, unstableUpgradeRadius.Value * 5);
+            photonView = GetComponent<PhotonView>();
+            explosionTime = 7.5f;
+            if (player == null)
+            {
+                mls.LogError("Error passing along player! Grabbing local value as failsafe! This will likely cause unintended side effects if not in singleplayer!");
+                player = SemiFunc.PlayerAvatarLocal();
+            }
+            mls.LogDebug("Spawning explosion!");
+            var level = Upgrades.GetUpgrade("UnstableCore").GetLevel(player);
+            var explosionDamage = unstableUpgradeDamage.Value * level;
+            this.gameObject.transform.localScale = (Vector3.one * (unstableUpgradeRadius.Value * 2) * level);
+            mls.LogDebug($"Explosion with diameter {this.gameObject.transform.localScale} and {explosionDamage} damage spawned at {this.gameObject.transform.position}!");
+            ParticleSystem.MainModule explosion = particleExplosion.main;
+            hurtCollider.playerDamage = (int)Mathf.Round(explosionDamage * 0.4f);
+            hurtCollider.enemyDamage = (int)explosionDamage;
+            explosion.startSpeedMultiplier = 0.5f + (0.5f * level);
+            explosion.m_ParticleSystem.Play();
+            explosionSound.Play(this.gameObject.transform.position, 2, 0.2f, 2, 0.4f);
+            explosionSoundGlobal.Play(this.gameObject.transform.position, 2, 0.2f, 2, 0.4f);
+            SemiFunc.CameraShakeDistance(this.gameObject.transform.position, level * 10f, 1f + (level * 0.5f), unstableUpgradeRadius.Value * 2, unstableUpgradeRadius.Value * 5);
         }
 
-            private void Update()
+        private void Update()
+        {
+            explosionTime -= Time.deltaTime;
+            if (explosionTime <= 7.3f && hurtCollider.enabled)
             {
-                explosionTime -= Time.deltaTime;
-                if (explosionTime <= 7.3f && hurtCollider.enabled)
-                {
-                    mls.LogDebug($"Disabling HurtCollider.");
-                    hurtCollider.enabled = false;
-                }
-                if (explosionTime <= 0f)
-                {
-                    mls.LogDebug($"Destroying explosion GameObject.");
-                    Destroy(this);
-                }
+                mls.LogDebug($"Disabling HurtCollider.");
+                hurtCollider.enabled = false;
+            }
+            if (explosionTime <= 0f)
+            {
+                mls.LogDebug($"Destroying explosion GameObject.");
+                Destroy(this);
             }
         }
     }
+}
