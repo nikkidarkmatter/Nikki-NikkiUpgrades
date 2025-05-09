@@ -125,7 +125,7 @@ namespace NikkiUpgrades.UpgradeManager
 
         private void OnDestroy()
         {
-            if (player != null && player.tumble.hurtCollider != null)
+            if (player != null && player.tumble != null && player.tumble.hurtCollider != null)
             {
                 player.tumble.hurtCollider.onImpactEnemy.RemoveListener(Explode);
                 player.tumble.hurtCollider.onImpactPlayer.RemoveListener(Explode);
