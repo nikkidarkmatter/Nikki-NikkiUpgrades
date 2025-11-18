@@ -97,7 +97,7 @@ namespace NikkiUpgrades.UpgradeManager
             {
                 if (SemiFunc.IsMasterClientOrSingleplayer())
                 {
-                    explosion = NetworkPrefabs.SpawnNetworkPrefab("UnstableExplosion", this.transform.position, this.transform.rotation);
+                    explosion = NetworkPrefabs.SpawnNetworkPrefab(NetworkPrefabs.GetNetworkPrefabRef("UnstableExplosion"), this.transform.position, this.transform.rotation);
                 }
                 explosionScript = explosion.GetComponent<UnstableCoreExplosion>();
                 explosionScript.player = this.player;

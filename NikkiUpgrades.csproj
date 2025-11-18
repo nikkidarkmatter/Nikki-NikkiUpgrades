@@ -42,15 +42,10 @@
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
     <PackageReference Include="BepInEx.Core" Version="5.*" />
     <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="UnityEngine.Modules" Version="2022.3.21" IncludeAssets="compile" PrivateAssets="all" />
-    <PackageReference Include="R.E.P.O.GameLibs.Steam" Version="0.1.2-ngd.0" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Reference Include="REPOLib">
-      <HintPath>C:\Users\nycto\AppData\Roaming\com.kesomannen.gale\repo\profiles\Developer\BepInEx\plugins\Zehs-REPOLib\REPOLib.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="UnityEngine.Modules" Version="2022.3.62" IncludeAssets="compile" PrivateAssets="all" />
+    <PackageReference Include="R.E.P.O.GameLibs.Steam" Version="0.3.0-ngd.0" />
+    <PackageReference Include="Zehs.REPOLib" Version="3.*" />
   </ItemGroup>
   
   <!-- Import settings from .csproj.user file -->
@@ -58,7 +53,7 @@
   
   <!-- Default values in case the .csproj.user file doesn't exist -->
   <PropertyGroup>
-    <GaleProfile Condition="'$(GaleProfile)' == ''">Developer</GaleProfile>
+    <GaleProfile Condition="'$(GaleProfile)' == ''">Developer - v0.3.0</GaleProfile>
     <GaleDataFolder Condition="'$(GaleDataFolder)' == ''">C:\Users\nycto\AppData\Roaming\com.kesomannen.gale/</GaleDataFolder>
   </PropertyGroup>
   

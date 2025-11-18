@@ -72,18 +72,20 @@ namespace NikkiUpgrades
 
             if (staminaRegenUpgradeEnabled.Value)
             {
-                Item staminaregenitem = assetBundle.LoadAsset<Item>("Item Upgrade Player Stamina Regen");
+                GameObject staminaregenObject = assetBundle.LoadAsset<GameObject>("Item Upgrade Player Stamina Regen");
+                ItemAttributes staminaregenitem = staminaregenObject.GetComponent<ItemAttributes>();
                 Items.RegisterItem(staminaregenitem);
-                staminaRegenRegister = Upgrades.RegisterUpgrade("StaminaRegen", staminaregenitem, InitStaminaUpgrade, UseStaminaUpgrade);
+                staminaRegenRegister = Upgrades.RegisterUpgrade("StaminaRegen", staminaregenitem.item, InitStaminaUpgrade, UseStaminaUpgrade);
             }
             if (investorUpgradeEnabled.Value)
             {
-                Item investoritem = assetBundle.LoadAsset<Item>("Item Upgrade Player Investor");
+                GameObject investorObject = assetBundle.LoadAsset<GameObject>("Item Upgrade Player Investor");
+                ItemAttributes investoritem = investorObject.GetComponent<ItemAttributes>();
                 GameObject investormanager = assetBundle.LoadAsset<GameObject>("Investor Manager");
                 Items.RegisterItem(investoritem);
                 NetworkPrefabs.RegisterNetworkPrefab("investormanager", investormanager);
-                investorRegister = Upgrades.RegisterUpgrade("Investor", investoritem, InitInvestorUpgrade, UseInvestorUpgrade);
-                investoritem.maxPurchaseAmount = investorUpgradeMax.Value;
+                investorRegister = Upgrades.RegisterUpgrade("Investor", investoritem.item, InitInvestorUpgrade, UseInvestorUpgrade);
+                investoritem.item.maxPurchaseAmount = investorUpgradeMax.Value;
             }
             /* if (lifeInsuranceUpgradeEnabled.Value)
             {
@@ -93,12 +95,13 @@ namespace NikkiUpgrades
             } */
             if (unstableUpgradeEnabled.Value)
             {
-                Item unstablecoreitem = assetBundle.LoadAsset<Item>("Item Upgrade Player Unstable Core");
+                GameObject unstablecoreObject = assetBundle.LoadAsset<GameObject>("Item Upgrade Player Unstable Core");
+                ItemAttributes unstablecoreitem = unstablecoreObject.GetComponent<ItemAttributes>();
                 unstableexplosion = assetBundle.LoadAsset<GameObject>("Unstable Explosion");
                 NetworkPrefabs.RegisterNetworkPrefab("UnstableExplosion", unstableexplosion);
                 Items.RegisterItem(unstablecoreitem);
                 // NetworkPrefabs.RegisterNetworkPrefab("unstableexplosion", unstableexplosion);
-                unstableCoreRegister = Upgrades.RegisterUpgrade("UnstableCore", unstablecoreitem, InitUnstableUpgrade, UseUnstableUpgrade);
+                unstableCoreRegister = Upgrades.RegisterUpgrade("UnstableCore", unstablecoreitem.item, InitUnstableUpgrade, UseUnstableUpgrade);
             }
         }
 
@@ -140,7 +143,7 @@ namespace NikkiUpgrades
         {
             if (SemiFunc.IsMasterClientOrSingleplayer() && (SemiFunc.RunIsLobby() || SemiFunc.RunIsShop()))
             {
-                NetworkPrefabs.SpawnNetworkPrefab("investormanager", Vector3.zero, Quaternion.identity);
+                NetworkPrefabs.SpawnNetworkPrefab(NetworkPrefabs.GetNetworkPrefabRef("investormanager"), Vector3.zero, Quaternion.identity);
             }
         }
 
